@@ -9,7 +9,23 @@ use App\Http\Controllers\CompraController;
 use App\Http\Controllers\DetalleCompraController;
 use App\Http\Controllers\LoteController;
 use App\Http\Controllers\ProductoController;
+use App\Http\Controllers\AuthController;
+ 
+Route::group([
+    'middleware' => 'api',
+    'prefix' => 'auth'
+], function ($router) {
+    Route::post('/register', [AuthController::class, 'register'])->name('register');
+    Route::post('/login', [AuthController::class, 'login'])->name('login');
+    Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:api')->name('logout');
+    Route::post('/refresh', [AuthController::class, 'refresh'])->middleware('auth:api')->name('refresh');
+    Route::post('/me', [AuthController::class, 'me'])->middleware('auth:api')->name('me');
+});
 
+
+//protecion rutas:
+
+Route::group(['middleware' => ['api', 'auth:api']], function () {
 // Rutas para el controlador Proveedor
 Route::get('/proveedores', [ProveedorController::class, 'index']);
 Route::get('/proveedores/{id}', [ProveedorController::class, 'show']);
@@ -51,3 +67,4 @@ Route::get('/productos/{id}', [ProductoController::class, 'show']);
 Route::post('/productos', [ProductoController::class, 'store']);
 Route::put('/productos/{id}', [ProductoController::class, 'update']);
 Route::delete('/productos/{id}', [ProductoController::class, 'destroy']);
+});
